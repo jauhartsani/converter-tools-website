@@ -88,7 +88,6 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body class="min-h-screen gradient-bg">
@@ -188,8 +187,18 @@
                 <div class="mt-6 flex justify-center">
                     <script type='text/javascript'
                         src='https://edge-cdn.trakteer.id/js/embed/trbtn.min.js?v=14-05-2025'></script>
-                    <script
-                        type='text/javascript'>(function () { var trbtnId = trbtn.init('Dukung Saya di Trakteer', '#be1e2d', 'https://trakteer.id/jauhar_tsani', 'https://edge-cdn.trakteer.id/images/embed/trbtn-icon.png?v=14-05-2025', '40'); trbtn.draw(trbtnId); })();</script>
+                    <script type='text/javascript'>
+                        (function () {
+                            var trbtnId = trbtn.init(
+                                'Dukung Saya di Trakteer',
+                                '#be1e2d',
+                                'https://trakteer.id/jauhar_tsani',
+                                'https://edge-cdn.trakteer.id/images/embed/trbtn-icon.png?v=14-05-2025',
+                                '40'
+                            );
+                            trbtn.draw(trbtnId);
+                        })();
+                    </script>
                 </div>
             </div>
 
@@ -253,27 +262,6 @@
                     </div>
                 </div>
 
-                <!-- Letakkan setelah PDF to Image card -->
-                <div class="tool-card bg-white rounded-2xl p-8 shadow-xl cursor-pointer"
-                    onclick="openTool('image-to-pdf')">
-                    <div
-                        class="w-16 h-16 bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-xl flex items-center justify-center mb-6 mx-auto pulse-slow">
-                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Image to PDF</h3>
-                    <p class="text-gray-600 text-center mb-6">Combine multiple images into a single PDF document</p>
-                    <div class="flex justify-center">
-                        <span class="bg-indigo-100 text-indigo-800 px-4 py-2 rounded-lg font-medium">
-                            🖼️ Multi-image
-                        </span>
-                    </div>
-                </div>
-
-                <!-- CATATAN: Sekarang ada 5 tools, ubah grid class menjadi "grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8" -->
-
                 <!-- QR Code Generator -->
                 <div class="tool-card bg-white rounded-2xl p-8 shadow-xl cursor-pointer"
                     onclick="openTool('qr-generator')">
@@ -296,12 +284,13 @@
         </div>
     </section>
 
-    <!-- Google adsense Iklan Banner -->
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1482430240058925" data-ad-slot="2001731742"
-        data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-    </script>
+    <!-- Google AdSense Mid Content -->
+    <div class="py-8">
+        <div class="max-w-4xl mx-auto px-4">
+            <ins class="adsbygoogle block" data-ad-client="ca-pub-1482430240058925" data-ad-slot="XXXXXXXXX"
+                data-ad-format="rectangle" data-full-width-responsive="true"></ins>
+        </div>
+    </div>
 
     <!-- Features Section -->
     <section id="features" class="py-20">
@@ -368,12 +357,11 @@
     <!-- Footer -->
     <footer class="py-12 bg-black bg-opacity-20">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- Google adsense Iklan Banner -->
-            <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-1482430240058925"
-                data-ad-slot="2001731742" data-ad-format="auto" data-full-width-responsive="true"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
+            <!-- Google AdSense Footer -->
+            <div class="mb-8">
+                <ins class="adsbygoogle block" data-ad-client="ca-pub-1482430240058925" data-ad-slot="XXXXXXXXX"
+                    data-ad-format="horizontal" data-full-width-responsive="true"></ins>
+            </div>
 
             <div class="text-center">
                 <div class="flex items-center justify-center space-x-2 mb-4">
@@ -714,167 +702,6 @@
         </div>
     </div>
 
-    <!-- BAGIAN 3: TAMBAH TOOL PAGE -->
-    <!-- Letakkan setelah PDF Converter page -->
-
-    <div id="image-to-pdf-page"
-        class="fixed inset-0 bg-gradient-to-br from-indigo-600 to-blue-700 z-50 hidden overflow-y-auto">
-        <div class="min-h-screen py-8">
-            <!-- Navigation -->
-            <div class="max-w-4xl mx-auto px-4 mb-8">
-                <div class="flex items-center justify-between">
-                    <button onclick="closeTool()" class="text-white hover:text-indigo-200 flex items-center space-x-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                        <span>Back to Tools</span>
-                    </button>
-                    <h1 class="text-2xl font-bold text-white">Image to PDF Converter</h1>
-                    <div></div>
-                </div>
-            </div>
-
-            <!-- Tool Content -->
-            <div class="max-w-4xl mx-auto px-4">
-                <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-                    <div class="p-8">
-                        <div class="text-center mb-8">
-                            <div
-                                class="w-20 h-20 bg-indigo-100 rounded-2xl mx-auto flex items-center justify-center mb-4">
-                                <svg class="w-10 h-10 text-indigo-600" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                            </div>
-                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Convert Images to PDF</h2>
-                            <p class="text-gray-600">Upload multiple images and combine them into a single PDF document
-                            </p>
-                        </div>
-
-                        <!-- Settings -->
-                        <div class="grid md:grid-cols-4 gap-4 mb-6">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Page Size:</label>
-                                <select id="img-pdf-page-size"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                    <option value="a4" selected>A4</option>
-                                    <option value="letter">Letter</option>
-                                    <option value="legal">Legal</option>
-                                    <option value="a3">A3</option>
-                                    <option value="custom">Custom</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Orientation:</label>
-                                <select id="img-pdf-orientation"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                    <option value="portrait" selected>Portrait</option>
-                                    <option value="landscape">Landscape</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Image Fit:</label>
-                                <select id="img-pdf-fit"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                                    <option value="contain" selected>Fit to Page</option>
-                                    <option value="cover">Fill Page</option>
-                                    <option value="stretch">Stretch</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Margin (mm):</label>
-                                <input type="number" id="img-pdf-margin" value="10" min="0" max="50"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
-                            </div>
-                        </div>
-
-                        <!-- Upload Area -->
-                        <div class="border-2 border-dashed border-gray-300 rounded-xl p-12 text-center hover:border-indigo-400 transition-colors"
-                            id="img-pdf-upload-area">
-                            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            <h3 class="text-xl font-semibold text-gray-700 mb-2">Drop multiple images here</h3>
-                            <p class="text-gray-500 mb-4">or click to browse (JPG, PNG, WebP supported)</p>
-                            <input type="file" id="img-pdf-file-input" accept="image/*" multiple class="hidden">
-                            <button onclick="document.getElementById('img-pdf-file-input').click()"
-                                class="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors">
-                                Choose Images
-                            </button>
-                        </div>
-
-                        <!-- Images Preview & Sorting -->
-                        <div id="img-pdf-preview-section" class="hidden mt-8">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-semibold text-gray-800">Images to Convert</h3>
-                                <div class="space-x-2">
-                                    <span class="text-sm text-gray-600" id="img-pdf-count">0 images selected</span>
-                                    <button onclick="clearAllImages()"
-                                        class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors text-sm">
-                                        Clear All
-                                    </button>
-                                </div>
-                            </div>
-
-                            <p class="text-sm text-gray-600 mb-4">📌 Drag and drop images to reorder them</p>
-
-                            <div id="img-pdf-images-grid"
-                                class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-6"></div>
-
-                            <div class="text-center">
-                                <button id="img-pdf-convert-btn" onclick="convertImagesToPDF()"
-                                    class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
-                                    Generate PDF
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Progress -->
-                        <div id="img-pdf-progress" class="hidden mt-6">
-                            <div class="bg-gray-200 rounded-full h-4 overflow-hidden">
-                                <div id="img-pdf-progress-bar" class="bg-indigo-500 h-full transition-all duration-300"
-                                    style="width: 0%"></div>
-                            </div>
-                            <p id="img-pdf-progress-text" class="text-center text-gray-600 mt-2">Generating PDF...</p>
-                        </div>
-
-                        <!-- Result -->
-                        <div id="img-pdf-result" class="hidden mt-8">
-                            <div class="bg-green-50 border border-green-200 rounded-lg p-6 text-center">
-                                <svg class="w-12 h-12 text-green-500 mx-auto mb-4" fill="none" stroke="currentColor"
-                                    viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                <h3 class="text-lg font-semibold text-green-800 mb-2">PDF Generated Successfully!</h3>
-                                <p id="img-pdf-result-info" class="text-green-700 mb-4"></p>
-                                <div class="space-x-4">
-                                    <button id="img-pdf-download-btn"
-                                        class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors">
-                                        Download PDF
-                                    </button>
-                                    <button onclick="resetImageToPDF()"
-                                        class="bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
-                                        Convert Another
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Ad Space -->
-                <div class="mt-8">
-                    <ins class="adsbygoogle block" data-ad-client="ca-pub-XXXXXXXXX" data-ad-slot="XXXXXXXXX"
-                        data-ad-format="rectangle" data-full-width-responsive="true"></ins>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- QR Code Generator -->
     <div id="qr-generator-page"
         class="fixed inset-0 bg-gradient-to-br from-purple-600 to-pink-700 z-50 hidden overflow-y-auto">
@@ -1088,8 +915,6 @@
         // Global variables
         let currentQRType = 'text';
         let pngBackgroundColor = '#ffffff';
-        let selectedImages = [];
-        let draggedIndex = null;
 
         // Initialize Google AdSense
         (adsbygoogle = window.adsbygoogle || []).push({});
@@ -1105,7 +930,7 @@
         }
 
         function closeTool() {
-            const pages = ['jpg-to-png-page', 'png-to-jpg-page', 'qr-generator-page', 'pdf-to-image-page', 'image-to-pdf-page',];
+            const pages = ['jpg-to-png-page', 'png-to-jpg-page', 'qr-generator-page', 'pdf-to-image-page'];
             pages.forEach(page => {
                 document.getElementById(page).classList.add('hidden');
             });
@@ -1137,8 +962,6 @@
             document.getElementById('pdf-pages-grid').innerHTML = '';
             pdfImages = [];
             currentPDFFormat = 'png';
-
-            resetImageToPDF();
         }
 
         // JPG to PNG Converter
@@ -1403,272 +1226,6 @@
             }
         }
 
-        // BAGIAN 4F: TAMBAH FUNCTIONS IMAGE TO PDF CONVERTER
-        // Letakkan sebelum console.log di akhir JavaScript
-
-        function resetImageToPDF() {
-            document.getElementById('img-pdf-file-input').value = '';
-            document.getElementById('img-pdf-preview-section').classList.add('hidden');
-            document.getElementById('img-pdf-progress').classList.add('hidden');
-            document.getElementById('img-pdf-result').classList.add('hidden');
-            document.getElementById('img-pdf-progress-bar').style.width = '0%';
-            document.getElementById('img-pdf-images-grid').innerHTML = '';
-            document.getElementById('img-pdf-count').textContent = '0 images selected';
-            selectedImages = [];
-        }
-
-        function handleImagesToPDFUpload(event) {
-            const files = Array.from(event.target.files);
-            if (files.length === 0) return;
-
-            // Validate files
-            const validFiles = files.filter(file => {
-                if (!file.type.startsWith('image/')) {
-                    alert(`${file.name} is not a valid image file.`);
-                    return false;
-                }
-                // Check file size (max 10MB per image)
-                if (file.size > 10 * 1024 * 1024) {
-                    alert(`${file.name} is too large. Maximum size is 10MB per image.`);
-                    return false;
-                }
-                return true;
-            });
-
-            if (validFiles.length === 0) return;
-
-            // Add to selected images
-            validFiles.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    selectedImages.push({
-                        file: file,
-                        dataUrl: e.target.result,
-                        name: file.name,
-                        id: Date.now() + Math.random() // unique ID
-                    });
-                    updateImagesGrid();
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function updateImagesGrid() {
-            const grid = document.getElementById('img-pdf-images-grid');
-            const count = document.getElementById('img-pdf-count');
-
-            count.textContent = `${selectedImages.length} image${selectedImages.length !== 1 ? 's' : ''} selected`;
-
-            if (selectedImages.length === 0) {
-                document.getElementById('img-pdf-preview-section').classList.add('hidden');
-                return;
-            }
-
-            document.getElementById('img-pdf-preview-section').classList.remove('hidden');
-
-            grid.innerHTML = '';
-            selectedImages.forEach((image, index) => {
-                const div = document.createElement('div');
-                div.className = 'relative border-2 border-gray-200 rounded-lg p-2 bg-white cursor-move hover:border-indigo-400 transition-colors';
-                div.draggable = true;
-                div.dataset.index = index;
-
-                div.innerHTML = `
-            <img src="${image.dataUrl}" class="w-full h-24 object-cover rounded mb-2">
-            <p class="text-xs text-gray-600 truncate" title="${image.name}">${image.name}</p>
-            <div class="absolute top-1 right-1 bg-indigo-500 text-white text-xs px-2 py-1 rounded">
-                ${index + 1}
-            </div>
-            <button onclick="removeImage(${index})" class="absolute top-1 left-1 bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
-                ×
-            </button>
-        `;
-
-                // Drag and drop events
-                div.addEventListener('dragstart', handleDragStart);
-                div.addEventListener('dragover', handleDragOver);
-                div.addEventListener('drop', handleDrop);
-                div.addEventListener('dragend', handleDragEnd);
-
-                grid.appendChild(div);
-            });
-        }
-
-        function handleDragStart(e) {
-            draggedIndex = parseInt(e.target.dataset.index);
-            e.target.style.opacity = '0.5';
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            const targetIndex = parseInt(e.target.closest('[data-index]').dataset.index);
-
-            if (draggedIndex !== null && draggedIndex !== targetIndex) {
-                // Reorder images
-                const draggedImage = selectedImages[draggedIndex];
-                selectedImages.splice(draggedIndex, 1);
-                selectedImages.splice(targetIndex, 0, draggedImage);
-                updateImagesGrid();
-            }
-        }
-
-        function handleDragEnd(e) {
-            e.target.style.opacity = '1';
-            draggedIndex = null;
-        }
-
-        function removeImage(index) {
-            selectedImages.splice(index, 1);
-            updateImagesGrid();
-        }
-
-        function clearAllImages() {
-            if (selectedImages.length > 0 && confirm('Are you sure you want to remove all images?')) {
-                selectedImages = [];
-                updateImagesGrid();
-            }
-        }
-
-        async function convertImagesToPDF() {
-            if (selectedImages.length === 0) {
-                alert('Please select at least one image.');
-                return;
-            }
-
-            const pageSize = document.getElementById('img-pdf-page-size').value;
-            const orientation = document.getElementById('img-pdf-orientation').value;
-            const fit = document.getElementById('img-pdf-fit').value;
-            const margin = parseInt(document.getElementById('img-pdf-margin').value);
-
-            // Show progress
-            document.getElementById('img-pdf-progress').classList.remove('hidden');
-            document.getElementById('img-pdf-result').classList.add('hidden');
-            document.getElementById('img-pdf-convert-btn').disabled = true;
-
-            try {
-                const { jsPDF } = window.jspdf;
-
-                // Page dimensions in mm
-                const pageSizes = {
-                    a4: [210, 297],
-                    letter: [216, 279],
-                    legal: [216, 356],
-                    a3: [297, 420]
-                };
-
-                let [pageWidth, pageHeight] = pageSizes[pageSize] || pageSizes.a4;
-
-                if (orientation === 'landscape') {
-                    [pageWidth, pageHeight] = [pageHeight, pageWidth];
-                }
-
-                const pdf = new jsPDF({
-                    orientation: orientation,
-                    unit: 'mm',
-                    format: pageSize
-                });
-
-                const contentWidth = pageWidth - (margin * 2);
-                const contentHeight = pageHeight - (margin * 2);
-
-                for (let i = 0; i < selectedImages.length; i++) {
-                    // Update progress
-                    const progress = (i / selectedImages.length) * 100;
-                    document.getElementById('img-pdf-progress-bar').style.width = progress + '%';
-                    document.getElementById('img-pdf-progress-text').textContent = `Processing image ${i + 1} of ${selectedImages.length}...`;
-
-                    const image = selectedImages[i];
-
-                    // Add new page (except for first image)
-                    if (i > 0) {
-                        pdf.addPage();
-                    }
-
-                    // Get image dimensions
-                    const img = new Image();
-                    await new Promise((resolve) => {
-                        img.onload = resolve;
-                        img.src = image.dataUrl;
-                    });
-
-                    let imgWidth, imgHeight, x, y;
-
-                    switch (fit) {
-                        case 'contain':
-                            // Fit image within page while maintaining aspect ratio
-                            const scaleX = contentWidth / img.width;
-                            const scaleY = contentHeight / img.height;
-                            const scale = Math.min(scaleX, scaleY);
-
-                            imgWidth = img.width * scale;
-                            imgHeight = img.height * scale;
-                            x = margin + (contentWidth - imgWidth) / 2;
-                            y = margin + (contentHeight - imgHeight) / 2;
-                            break;
-
-                        case 'cover':
-                            // Fill page while maintaining aspect ratio (may crop)
-                            const scaleX2 = contentWidth / img.width;
-                            const scaleY2 = contentHeight / img.height;
-                            const scale2 = Math.max(scaleX2, scaleY2);
-
-                            imgWidth = img.width * scale2;
-                            imgHeight = img.height * scale2;
-                            x = margin + (contentWidth - imgWidth) / 2;
-                            y = margin + (contentHeight - imgHeight) / 2;
-                            break;
-
-                        case 'stretch':
-                        default:
-                            // Stretch to fill page
-                            imgWidth = contentWidth;
-                            imgHeight = contentHeight;
-                            x = margin;
-                            y = margin;
-                            break;
-                    }
-
-                    pdf.addImage(image.dataUrl, 'JPEG', x, y, imgWidth, imgHeight);
-
-                    // Small delay to prevent browser freezing
-                    await new Promise(resolve => setTimeout(resolve, 10));
-                }
-
-                // Complete
-                document.getElementById('img-pdf-progress-bar').style.width = '100%';
-                document.getElementById('img-pdf-progress-text').textContent = 'PDF generated successfully!';
-
-                // Generate PDF blob
-                const pdfBlob = pdf.output('blob');
-                const pdfSize = (pdfBlob.size / 1024 / 1024).toFixed(2);
-
-                // Show result
-                setTimeout(() => {
-                    document.getElementById('img-pdf-progress').classList.add('hidden');
-                    document.getElementById('img-pdf-result').classList.remove('hidden');
-                    document.getElementById('img-pdf-result-info').textContent =
-                        `PDF created with ${selectedImages.length} pages • Size: ${pdfSize} MB`;
-
-                    // Setup download
-                    document.getElementById('img-pdf-download-btn').onclick = function () {
-                        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
-                        downloadBlob(pdfBlob, `images-to-pdf-${timestamp}.pdf`);
-                    };
-                }, 1000);
-
-            } catch (error) {
-                alert('Error generating PDF: ' + error.message);
-                console.error('PDF generation error:', error);
-            } finally {
-                document.getElementById('img-pdf-convert-btn').disabled = false;
-            }
-        }
-
-
         // QR Code Generator
         function setQRType(type) {
             currentQRType = type;
@@ -1799,9 +1356,7 @@
         function setupDragAndDrop() {
             const uploadAreas = [
                 { area: 'jpg-upload-area', input: 'jpg-file-input' },
-                { area: 'png-upload-area', input: 'png-file-input' },
-                { area: 'pdf-upload-area', input: 'pdf-file-input' },
-                { area: 'img-pdf-upload-area', input: 'img-pdf-file-input' }
+                { area: 'png-upload-area', input: 'png-file-input' }
             ];
 
             uploadAreas.forEach(({ area, input }) => {
@@ -1840,7 +1395,7 @@
         // Initialize drag and drop when page loads
         document.addEventListener('DOMContentLoaded', function () {
             setupDragAndDrop();
-            document.getElementById('img-pdf-file-input').addEventListener('change', handleImagesToPDFUpload);
+
             // Initialize Google AdSense
             try {
                 (adsbygoogle = window.adsbygoogle || []).push({});
@@ -2000,7 +1555,6 @@
 
         console.log('✨ Converter Tools loaded successfully!');
         console.log('🚀 Ready to convert images and generate QR codes');
-        console.log('🖼️ Image to PDF converter loaded!');
     </script>
 </body>
 
