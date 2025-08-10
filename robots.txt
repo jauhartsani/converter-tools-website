@@ -1,4 +1,11 @@
+<<<<<<< HEAD
 User-agent: *
 Allow: /
 
 Sitemap: https://convertyours.netlify.app/sitemap.xml
+=======
+User-agent: *
+Allow: /
+
+Sitemap: https://convertyours.netlify.app/sitemap.xml
+>>>>>>> 1e00b9fd1d4eccefd694c0d52f1ea222966cf632
