@@ -269,31 +269,6 @@
                 </div>
             </div>
 
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                <!-- Activity Timeline -->
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900">Activity Timeline</h3>
-                        <select id="timelineFilter" class="text-sm border border-gray-300 rounded-lg px-3 py-1" onchange="updateTimelineChart()">
-                            <option value="24h">Last 24 hours</option>
-                            <option value="7d">Last 7 days</option>
-                            <option value="30d">Last 30 days</option>
-                        </select>
-                    </div>
-                    <canvas id="activityChart" class="w-full h-64"></canvas>
-                </div>
-
-                <!-- Tool Distribution -->
-                <div class="bg-white rounded-xl p-6 shadow-sm">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-semibold text-gray-900">Tool Usage Distribution</h3>
-                        <span class="text-sm text-gray-500">Real-time data</span>
-                    </div>
-                    <canvas id="toolsChart" class="w-full h-64"></canvas>
-                </div>
-            </div>
-
             <!-- Real-time Activity & Stats -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Live Activity Feed -->
