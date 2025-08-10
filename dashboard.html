@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Monitoring - Convert Yours</title>
+    <link rel="icon" type="image/png" href="/assets/logooooo.png">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(16px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .metric-card {
+            transition: all 0.3s ease;
+            transform: translateY(0);
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .pulse-dot {
+            animation: pulse-dot 2s infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+            }
+        }
+        
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gray-100">
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md mx-4">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-purple-100 rounded-full mx-auto flex items-center justify-center mb-4">
+                    <img src="/assets/logooooo.png" alt="Logo" class="w-12 h-12 object-contain" />
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800">Admin Login</h2>
+                <p class="text-gray-600 mt-2">Access Dashboard Monitoring</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter username"
+                        required
+                    >
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                        placeholder="Enter password"
+                        required
+                    >
+                </div>
+                
+                <div id="loginError" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                    Invalid username or password. Please try again.
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium"
+                >
+                    Sign In
+                </button>
+                
+                <div class="text-center text-sm text-gray-500">
+                    Hint: admin / admin123
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard (Hidden initially) -->
+    <div id="dashboard" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <img src="/assets/logooooo.png" alt="Logo" class="w-8 h-8 object-contain" />
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Dashboard Monitoring</h1>
+                            <p class="text-sm text-gray-500">Convert Yours Analytics - Real Data</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <!-- Live Status -->
+                        <div class="flex items-center space-x-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full pulse-dot"></div>
+                            <span class="text-sm text-gray-600">Live</span>
+                        </div>
+                        
+                        <!-- Last Updated -->
+                        <div class="text-sm text-gray-500" id="lastUpdated">
+                            Last updated: <span id="updateTime">--:--</span>
+                        </div>
+                        
+                        <!-- Refresh Button -->
+                        <button onclick="refreshData()" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm">
+                            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                        </button>
+                        
+                        <!-- Reset Data Button -->
+                        <button onclick="resetAllData()" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors text-sm">
+                            Reset Data
+                        </button>
+                        
+                        <!-- Logout -->
+                        <button onclick="logout()" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Data Collection Status -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="flex items-center">
+                    <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-sm text-blue-800">
+                        Data tracking started: <span id="trackingStart">--</span> | 
+                        Active sessions: <span id="activeSessions">0</span> |
+                        Data points collected: <span id="dataPoints">0</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Page Views -->
+                <div class="metric-card bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Total Page Views</p>
+                            <p class="text-3xl font-bold text-gray-900" id="totalPageViews">0</p>
+                            <p class="text-sm text-green-600 mt-2">
+                                <span class="inline-flex items-center">
+                                    <span id="pageViewsTrend">--</span>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool Usage -->
+                <div class="metric-card bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Tool Usage</p>
+                            <p class="text-3xl font-bold text-gray-900" id="totalToolUsage">0</p>
+                            <p class="text-sm text-green-600 mt-2">
+                                <span class="inline-flex items-center">
+                                    <span id="toolUsageTrend">--</span>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Files Processed -->
+                <div class="metric-card bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Files Processed</p>
+                            <p class="text-3xl font-bold text-gray-900" id="totalFilesProcessed">0</p>
+                            <p class="text-sm text-blue-600 mt-2">
+                                <span class="inline-flex items-center">
+                                    <span id="filesProcessedTrend">--</span>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Session Duration -->
+                <div class="metric-card bg-white rounded-xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-600 mb-1">Avg. Session</p>
+                            <p class="text-3xl font-bold text-gray-900" id="avgSessionDuration">0:00</p>
+                            <p class="text-sm text-orange-600 mt-2">
+                                <span class="inline-flex items-center">
+                                    <span id="sessionDurationTrend">--</span>
+                                </span>
+                            </p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Activity & Stats -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Live Activity Feed -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-semibold text-gray-900">Live Activity Feed</h3>
+                            <div class="flex items-center space-x-2">
+                                <div class="w-2 h-2 bg-green-500 rounded-full pulse-dot"></div>
+                                <span class="text-xs text-gray-500">Real-time</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6 max-h-96 overflow-y-auto">
+                        <div class="space-y-3" id="liveActivityFeed">
+                            <div class="text-center text-gray-500 py-8">
+                                <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                </svg>
+                                Waiting for activity...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Stats -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-gray-200">
+                        <h3 class="text-lg font-semibold text-gray-900">Performance Statistics</h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="space-y-4">
+                            <!-- Most Used Tool -->
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Most Used Tool</p>
+                                    <p class="text-xs text-gray-500" id="mostUsedTool">--</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-blue-600" id="mostUsedToolCount">0</div>
+                                    <div class="text-xs text-gray-500">uses</div>
+                                </div>
+                            </div>
+
+                            <!-- Peak Hour -->
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Peak Hour</p>
+                                    <p class="text-xs text-gray-500" id="peakHour">--:00</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-green-600" id="peakHourCount">0</div>
+                                    <div class="text-xs text-gray-500">activities</div>
+                                </div>
+                            </div>
+
+                            <!-- Total Data Size Processed -->
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Data Processed</p>
+                                    <p class="text-xs text-gray-500">Total file size</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-purple-600" id="totalDataProcessed">0 MB</div>
+                                    <div class="text-xs text-gray-500">processed</div>
+                                </div>
+                            </div>
+
+                            <!-- Success Rate -->
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-900">Success Rate</p>
+                                    <p class="text-xs text-gray-500">Conversion success</p>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-lg font-bold text-orange-600" id="successRate">100%</div>
+                                    <div class="text-xs text-gray-500">success</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Export Section -->
+            <div class="mt-8">
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Data Export & Management</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <button onclick="exportData()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+                            Export Data (JSON)
+                        </button>
+                        <button onclick="exportCSV()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+                            Export CSV
+                        </button>
+                        <button onclick="clearOldData()" class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors text-sm">
+                            Clear Old Data (7+ days)
+                        </button>
+                        <span class="text-sm text-gray-500 px-2 py-2">
+                            Storage used: <span id="storageUsed">0 KB</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Hardcoded login credentials
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'admin123'
+        };
+
+        // Real data storage keys
+        const STORAGE_KEYS = {
+            ANALYTICS: 'convertYours_analytics',
+            ACTIVITIES: 'convertYours_activities',
+            SESSIONS: 'convertYours_sessions',
+            TOOLS_USAGE: 'convertYours_toolsUsage',
+            INIT_TIME: 'convertYours_initTime'
+        };
+
+        let isLoggedIn = false;
+        let activityChart = null;
+        let toolsChart = null;
+
+        // Initialize analytics data structure
+        function initializeAnalytics() {
+            const now = Date.now();
+            const initTime = localStorage.getItem(STORAGE_KEYS.INIT_TIME);
+            
+            if (!initTime) {
+                localStorage.setItem(STORAGE_KEYS.INIT_TIME, now.toString());
+                // Initialize empty data structures
+                const initialData = {
+                    pageViews: [],
+                    toolUsage: {
+                        'jpg-to-png': 0,
+                        'png-to-jpg': 0,
+                        'pdf-to-image': 0,
+                        'qr-generator': 0
+                    },
+                    sessions: [],
+                    filesProcessed: 0,
+                    totalDataSize: 0,
+                    errors: 0
+                };
+                
+                localStorage.setItem(STORAGE_KEYS.ANALYTICS, JSON.stringify(initialData));
+                localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify([]));
+            }
+        }
+
+        // Get analytics data
+        function getAnalyticsData() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEYS.ANALYTICS) || '{}');
+            } catch (e) {
+                return {};
+            }
+        }
+
+        // Save analytics data
+        function saveAnalyticsData(data) {
+            localStorage.setItem(STORAGE_KEYS.ANALYTICS, JSON.stringify(data));
+        }
+
+        // Get activities data
+        function getActivitiesData() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITIES) || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        // Save activities data
+        function saveActivitiesData(activities) {
+            localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
+        }
+
+        // Add activity to feed
+        function addActivity(type, details = {}) {
+            const activities = getActivitiesData();
+            const activity = {
+                id: Date.now(),
+                type: type,
+                details: details,
+                timestamp: Date.now(),
+                userAgent: navigator.userAgent.slice(0, 50) + '...',
+                ip: 'xxx.xxx.xxx.xxx', // Privacy placeholder
+                sessionId: getSessionId()
+            };
+
+            activities.unshift(activity);
+            
+            // Keep only last 1000 activities
+            if (activities.length > 1000) {
+                activities.splice(1000);
+            }
+            
+            saveActivitiesData(activities);
+            
+            // Update analytics
+            const analyticsData = getAnalyticsData();
+            
+            switch (type) {
+                case 'page_view':
+                    analyticsData.pageViews = analyticsData.pageViews || [];
+                    analyticsData.pageViews.push(Date.now());
+                    break;
+                    
+                case 'tool_used':
+                    analyticsData.toolUsage = analyticsData.toolUsage || {};
+                    analyticsData.toolUsage[details.tool] = (analyticsData.toolUsage[details.tool] || 0) + 1;
+                    break;
+                    
+                case 'file_processed':
+                    analyticsData.filesProcessed = (analyticsData.filesProcessed || 0) + 1;
+                    analyticsData.totalDataSize = (analyticsData.totalDataSize || 0) + (details.fileSize || 0);
+                    break;
+                    
+                case 'error':
+                    analyticsData.errors = (analyticsData.errors || 0) + 1;
+                    break;
+            }
+            
+            saveAnalyticsData(analyticsData);
+            
+            // Update real-time dashboard if logged in
+            if (isLoggedIn) {
+                updateLiveActivityFeed();
+                updateMetrics();
+            }
+        }
+
+        // Get or create session ID
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('convertYours_sessionId');
+            if (!sessionId) {
+                sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                sessionStorage.setItem('convertYours_sessionId', sessionId);
+                
+                // Track session start
+                const sessions = getAnalyticsData().sessions || [];
+                sessions.push({
+                    id: sessionId,
+                    start: Date.now(),
+                    end: null,
+                    activities: 0
+                });
+                
+                const data = getAnalyticsData();
+                data.sessions = sessions;
+                saveAnalyticsData(data);
+            }
+            return sessionId;
+        }
+
+        // Track session activity
+        function trackSessionActivity() {
+            const sessionId = getSessionId();
+            const data = getAnalyticsData();
+            const sessions = data.sessions || [];
+            
+            const session = sessions.find(s => s.id === sessionId);
+            if (session && !session.end) {
+                session.activities++;
+                session.lastActivity = Date.now();
+                saveAnalyticsData(data);
+            }
+        }
+
+        // End session
+        function endSession() {
+            const sessionId = sessionStorage.getItem('convertYours_sessionId');
+            if (sessionId) {
+                const data = getAnalyticsData();
+                const sessions = data.sessions || [];
+                const session = sessions.find(s => s.id === sessionId);
+                if (session && !session.end) {
+                    session.end = Date.now();
+                    saveAnalyticsData(data);
+                }
+            }
+        }
+
+        // Login functionality
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorDiv = document.getElementById('loginError');
+            
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                isLoggedIn = true;
+                document.getElementById('loginModal').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                initializeDashboard();
+            } else {
+                errorDiv.classList.remove('hidden');
+                setTimeout(() => {
+                    errorDiv.classList.add('hidden');
+                }, 3000);
+            }
+        });
+
+        // Logout functionality
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('dashboard').classList.add('hidden');
+            
+            // Clear form
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Initialize dashboard with real data
+        function initializeDashboard() {
+            initializeAnalytics();
+            updateMetrics();
+            createCharts();
+            updateLiveActivityFeed();
+            updatePerformanceStats();
+            updateTrackingInfo();
+            
+            // Set last updated time
+            updateLastUpdatedTime();
+        }
+
+        // Update metrics with real data
+        function updateMetrics() {
+            const data = getAnalyticsData();
+            
+            // Total Page Views
+            const pageViews = data.pageViews || [];
+            document.getElementById('totalPageViews').textContent = pageViews.length.toLocaleString();
+            
+            // Tool Usage
+            const toolUsage = data.toolUsage || {};
+            const totalTools = Object.values(toolUsage).reduce((sum, count) => sum + count, 0);
+            document.getElementById('totalToolUsage').textContent = totalTools.toLocaleString();
+            
+            // Files Processed
+            document.getElementById('totalFilesProcessed').textContent = (data.filesProcessed || 0).toLocaleString();
+            
+            // Average Session Duration
+            const sessions = data.sessions || [];
+            const completedSessions = sessions.filter(s => s.end);
+            if (completedSessions.length > 0) {
+                const avgDuration = completedSessions.reduce((sum, session) => {
+                    return sum + (session.end - session.start);
+                }, 0) / completedSessions.length;
+                
+                const minutes = Math.floor(avgDuration / 60000);
+                const seconds = Math.floor((avgDuration % 60000) / 1000);
+                document.getElementById('avgSessionDuration').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else {
+                document.getElementById('avgSessionDuration').textContent = '0:00';
+            }
+            
+            // Update trends (simplified)
+            updateTrends(data);
+        }
+
+        // Update trends
+        function updateTrends(data) {
+            const now = Date.now();
+            const oneDayAgo = now - 24 * 60 * 60 * 1000;
+            
+            // Page views trend
+            const pageViews = data.pageViews || [];
+            const recentPageViews = pageViews.filter(timestamp => timestamp > oneDayAgo);
+            const pageViewsTrend = recentPageViews.length > 0 ? `+${recentPageViews.length} today` : 'No data today';
+            document.getElementById('pageViewsTrend').textContent = pageViewsTrend;
+            
+            // Tool usage trend
+            const activities = getActivitiesData();
+            const recentToolUsage = activities.filter(activity => 
+                activity.timestamp > oneDayAgo && activity.type === 'tool_used'
+            );
+            const toolUsageTrend = recentToolUsage.length > 0 ? `+${recentToolUsage.length} today` : 'No usage today';
+            document.getElementById('toolUsageTrend').textContent = toolUsageTrend;
+            
+            // Files processed trend
+            const recentFiles = activities.filter(activity => 
+                activity.timestamp > oneDayAgo && activity.type === 'file_processed'
+            );
+            const filesTrend = recentFiles.length > 0 ? `+${recentFiles.length} today` : 'No files today';
+            document.getElementById('filesProcessedTrend').textContent = filesTrend;
+            
+            // Session duration trend
+            document.getElementById('sessionDurationTrend').textContent = 'Real-time tracking';
+        }
+
+        // Create charts with real data
+        function createCharts() {
+            createActivityChart();
+            createToolsChart();
+        }
+
+        function createActivityChart() {
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            
+            if (activityChart) {
+                activityChart.destroy();
+            }
+            
+            const activities = getActivitiesData();
+            const now = Date.now();
+            const timeFilter = document.getElementById('timelineFilter').value;
+            
+            let timeRange, groupBy, labels;
+            
+            switch(timeFilter) {
+                case '24h':
+                    timeRange = 24 * 60 * 60 * 1000;
+                    groupBy = 60 * 60 * 1000; // 1 hour
+                    labels = [];
+                    for (let i = 23; i >= 0; i--) {
+                        const hour = new Date(now - i * 60 * 60 * 1000).getHours();
+                        labels.push(hour.toString().padStart(2, '0') + ':00');
+                    }
+                    break;
+                case '7d':
+                    timeRange = 7 * 24 * 60 * 60 * 1000;
+                    groupBy = 24 * 60 * 60 * 1000; // 1 day
+                    labels = [];
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date(now - i * 24 * 60 * 60 * 1000);
+                        labels.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+                    }
+                    break;
+                case '30d':
+                    timeRange = 30 * 24 * 60 * 60 * 1000;
+                    groupBy = 24 * 60 * 60 * 1000; // 1 day
+                    labels = [];
+                    for (let i = 29; i >= 0; i--) {
+                        const date = new Date(now - i * 24 * 60 * 60 * 1000);
+                        labels.push(date.getDate().toString());
+                    }
+                    break;
+            }
+            
+            const recentActivities = activities.filter(activity => 
+                activity.timestamp > (now - timeRange)
+            );
+            
+            // Group activities by time periods
+            const data = new Array(labels.length).fill(0);
+            recentActivities.forEach(activity => {
+                const timeDiff = now - activity.timestamp;
+                const index = Math.floor(timeDiff / groupBy);
+                const actualIndex = labels.length - 1 - index;
+                if (actualIndex >= 0 && actualIndex < data.length) {
+                    data[actualIndex]++;
+                }
+            });
+            
+            activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Activities',
+                        data: data,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function createToolsChart() {
+            const ctx = document.getElementById('toolsChart').getContext('2d');
+            
+            if (toolsChart) {
+                toolsChart.destroy();
+            }
+            
+            const data = getAnalyticsData();
+            const toolUsage = data.toolUsage || {};
+            
+            const labels = ['JPG to PNG', 'PNG to JPG', 'PDF to Image', 'QR Generator'];
+            const values = [
+                toolUsage['jpg-to-png'] || 0,
+                toolUsage['png-to-jpg'] || 0,
+                toolUsage['pdf-to-image'] || 0,
+                toolUsage['qr-generator'] || 0
+            ];
+            
+            toolsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values,
+                        backgroundColor: [
+                            '#3b82f6',
+                            '#10b981',
+                            '#ef4444',
+                            '#8b5cf6'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update live activity feed
+        function updateLiveActivityFeed() {
+            const activities = getActivitiesData();
+            const recentActivities = activities.slice(0, 10); // Last 10 activities
+            const container = document.getElementById('liveActivityFeed');
+            
+            if (recentActivities.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-500 py-8">
+                        <svg class="w-12 h-12 mx-auto mb-2 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                        </svg>
+                        Waiting for activity...
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = recentActivities.map(activity => {
+                const timeAgo = formatTimeAgo(activity.timestamp);
+                const icon = getActivityIcon(activity.type);
+                const description = getActivityDescription(activity);
+                
+                return `
+                    <div class="flex items-start space-x-3 p-3 bg-gray-50 rounded-lg">
+                        <div class="text-lg flex-shrink-0">${icon}</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900">${description}</p>
+                            <p class="text-xs text-gray-500 truncate">
+                                ${timeAgo} • Session: ${activity.sessionId?.slice(-6) || 'Unknown'}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Get activity icon
+        function getActivityIcon(type) {
+            const icons = {
+                'page_view': '👁️',
+                'tool_used': '🔧',
+                'file_processed': '📁',
+                'error': '❌',
+                'session_start': '🚀',
+                'session_end': '🏁'
+            };
+            return icons[type] || '📊';
+        }
+
+        // Get activity description
+        function getActivityDescription(activity) {
+            switch (activity.type) {
+                case 'page_view':
+                    return `Page viewed: ${activity.details.page || 'Home'}`;
+                case 'tool_used':
+                    return `Tool opened: ${formatToolName(activity.details.tool)}`;
+                case 'file_processed':
+                    const size = activity.details.fileSize ? ` (${formatBytes(activity.details.fileSize)})` : '';
+                    return `File processed: ${activity.details.fileName || 'Unknown'}${size}`;
+                case 'error':
+                    return `Error occurred: ${activity.details.error || 'Unknown error'}`;
+                case 'session_start':
+                    return 'New session started';
+                case 'session_end':
+                    return 'Session ended';
+                default:
+                    return 'Unknown activity';
+            }
+        }
+
+        // Format tool names
+        function formatToolName(toolId) {
+            const names = {
+                'jpg-to-png': 'JPG to PNG',
+                'png-to-jpg': 'PNG to JPG',
+                'pdf-to-image': 'PDF to Image',
+                'qr-generator': 'QR Generator'
+            };
+            return names[toolId] || toolId;
+        }
+
+        // Format bytes
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Format time ago
+        function formatTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            
+            if (diff < 60000) return 'Just now';
+            if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+            if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+            return Math.floor(diff / 86400000) + 'd ago';
+        }
+
+        // Update performance stats
+        function updatePerformanceStats() {
+            const data = getAnalyticsData();
+            const activities = getActivitiesData();
+            
+            // Most used tool
+            const toolUsage = data.toolUsage || {};
+            let mostUsedTool = 'None';
+            let mostUsedCount = 0;
+            
+            Object.entries(toolUsage).forEach(([tool, count]) => {
+                if (count > mostUsedCount) {
+                    mostUsedCount = count;
+                    mostUsedTool = formatToolName(tool);
+                }
+            });
+            
+            document.getElementById('mostUsedTool').textContent = mostUsedTool;
+            document.getElementById('mostUsedToolCount').textContent = mostUsedCount;
+            
+            // Peak hour
+            const hourCounts = new Array(24).fill(0);
+            activities.forEach(activity => {
+                const hour = new Date(activity.timestamp).getHours();
+                hourCounts[hour]++;
+            });
+            
+            let peakHour = 0;
+            let peakHourCount = 0;
+            hourCounts.forEach((count, hour) => {
+                if (count > peakHourCount) {
+                    peakHourCount = count;
+                    peakHour = hour;
+                }
+            });
+            
+            document.getElementById('peakHour').textContent = `${peakHour.toString().padStart(2, '0')}:00`;
+            document.getElementById('peakHourCount').textContent = peakHourCount;
+            
+            // Total data processed
+            const totalDataSize = data.totalDataSize || 0;
+            document.getElementById('totalDataProcessed').textContent = formatBytes(totalDataSize);
+            
+            // Success rate (simplified - assuming all are successful unless errors)
+            const totalOperations = (data.filesProcessed || 0);
+            const errors = data.errors || 0;
+            const successRate = totalOperations > 0 ? ((totalOperations - errors) / totalOperations * 100).toFixed(1) : 100;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        // Update tracking info
+        function updateTrackingInfo() {
+            const initTime = localStorage.getItem(STORAGE_KEYS.INIT_TIME);
+            const startDate = initTime ? new Date(parseInt(initTime)).toLocaleString() : 'Unknown';
+            document.getElementById('trackingStart').textContent = startDate;
+            
+            // Active sessions (simplified)
+            const data = getAnalyticsData();
+            const sessions = data.sessions || [];
+            const activeSessions = sessions.filter(s => !s.end && (Date.now() - s.start) < 30 * 60 * 1000).length;
+            document.getElementById('activeSessions').textContent = activeSessions;
+            
+            // Data points
+            const activities = getActivitiesData();
+            document.getElementById('dataPoints').textContent = activities.length;
+            
+            // Storage used
+            const storageSize = new Blob([
+                localStorage.getItem(STORAGE_KEYS.ANALYTICS) || '',
+                localStorage.getItem(STORAGE_KEYS.ACTIVITIES) || ''
+            ]).size;
+            document.getElementById('storageUsed').textContent = formatBytes(storageSize);
+        }
+
+        // Update timeline chart when filter changes
+        function updateTimelineChart() {
+            createActivityChart();
+        }
+
+        // Update last updated time
+        function updateLastUpdatedTime() {
+            const now = new Date();
+            document.getElementById('updateTime').textContent = now.toLocaleTimeString();
+        }
+
+        // Refresh data
+        function refreshData() {
+            updateMetrics();
+            updateLiveActivityFeed();
+            updatePerformanceStats();
+            updateTrackingInfo();
+            createCharts();
+            updateLastUpdatedTime();
+            
+            // Add refresh animation
+            const button = event.target;
+            const originalHTML = button.innerHTML;
+            button.innerHTML = `
+                <svg class="w-4 h-4 inline mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Refreshing...
+            `;
+            
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+            }, 1000);
+        }
+
+        // Reset all data
+        function resetAllData() {
+            if (confirm('Are you sure you want to reset all tracking data? This action cannot be undone.')) {
+                Object.values(STORAGE_KEYS).forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                
+                alert('All data has been reset. The page will reload.');
+                location.reload();
+            }
+        }
+
+        // Export data functions
+        function exportData() {
+            const data = {
+                analytics: getAnalyticsData(),
+                activities: getActivitiesData(),
+                exportDate: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `convertyours-analytics-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function exportCSV() {
+            const activities = getActivitiesData();
+            const headers = ['Timestamp', 'Type', 'Details', 'Session ID', 'User Agent'];
+            
+            const csvContent = [
+                headers.join(','),
+                ...activities.map(activity => [
+                    new Date(activity.timestamp).toISOString(),
+                    activity.type,
+                    JSON.stringify(activity.details).replace(/"/g, '""'),
+                    activity.sessionId || '',
+                    `"${activity.userAgent || ''}"`
+                ].join(','))
+            ].join('\n');
+            
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `convertyours-activities-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function clearOldData() {
+            const sevenDaysAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            const activities = getActivitiesData();
+            const recentActivities = activities.filter(activity => activity.timestamp > sevenDaysAgo);
+            
+            if (activities.length === recentActivities.length) {
+                alert('No old data to clear.');
+                return;
+            }
+            
+            if (confirm(`This will remove ${activities.length - recentActivities.length} old activities. Continue?`)) {
+                saveActivitiesData(recentActivities);
+                
+                // Also clean analytics data
+                const data = getAnalyticsData();
+                if (data.pageViews) {
+                    data.pageViews = data.pageViews.filter(timestamp => timestamp > sevenDaysAgo);
+                }
+                if (data.sessions) {
+                    data.sessions = data.sessions.filter(session => session.start > sevenDaysAgo);
+                }
+                saveAnalyticsData(data);
+                
+                alert('Old data cleared successfully.');
+                refreshData();
+            }
+        }
+
+        // Auto-refresh every 10 seconds
+        setInterval(() => {
+            if (isLoggedIn) {
+                updateMetrics();
+                updateLiveActivityFeed();
+                updateLastUpdatedTime();
+            }
+        }, 10000);
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAnalytics();
+            
+            // Focus on username field
+            document.getElementById('username').focus();
+            
+            // Allow Enter key to submit
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !isLoggedIn) {
+                    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                }
+            });
+            
+            // Track session end on page unload
+            window.addEventListener('beforeunload', endSession);
+            
+            // Add some sample data for demonstration
+            if (!localStorage.getItem(STORAGE_KEYS.INIT_TIME)) {
+                // Add sample activities for demonstration
+                setTimeout(() => {
+                    addActivity('page_view', { page: 'Home' });
+                    setTimeout(() => addActivity('tool_used', { tool: 'jpg-to-png' }), 1000);
+                    setTimeout(() => addActivity('file_processed', { fileName: 'sample.jpg', fileSize: 1024000 }), 2000);
+                    setTimeout(() => addActivity('tool_used', { tool: 'qr-generator' }), 3000);
+                    setTimeout(() => addActivity('file_processed', { fileName: 'document.pdf', fileSize: 2048000 }), 4000);
+                }, 500);
+            }
+        });
+
+        // Export functions to global scope for HTML integration
+        window.ConvertYoursAnalytics = {
+            addActivity: addActivity,
+            trackSessionActivity: trackSessionActivity,
+            endSession: endSession
+        };
+
+        console.log('🔐 Dashboard loaded with real data tracking');
+        console.log('📊 Use admin/admin123 to login');
+        console.log('🔧 Analytics functions available globally as ConvertYoursAnalytics');
+    </script>
+</body>
+
+</html>
