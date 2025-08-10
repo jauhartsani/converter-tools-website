@@ -1555,7 +1555,214 @@
 
         console.log('✨ Converter Tools loaded successfully!');
         console.log('🚀 Ready to convert images and generate QR codes');
+
+    </script>
+    <script>
+        // Convert Yours Analytics Tracking Script
+        // Add this script to your main index.html file
+
+        (function () {
+            'use strict';
+
+            // Storage keys
+            const STORAGE_KEYS = {
+                ANALYTICS: 'convertYours_analytics',
+                ACTIVITIES: 'convertYours_activities',
+                SESSIONS: 'convertYours_sessions',
+                INIT_TIME: 'convertYours_initTime'
+            };
+
+            // Initialize analytics on first load
+            function initializeAnalytics() {
+                const now = Date.now();
+                const initTime = localStorage.getItem(STORAGE_KEYS.INIT_TIME);
+
+                if (!initTime) {
+                    localStorage.setItem(STORAGE_KEYS.INIT_TIME, now.toString());
+                    const initialData = {
+                        pageViews: [],
+                        toolUsage: {
+                            'jpg-to-png': 0,
+                            'png-to-jpg': 0,
+                            'pdf-to-image': 0,
+                            'qr-generator': 0
+                        },
+                        sessions: [],
+                        filesProcessed: 0,
+                        totalDataSize: 0,
+                        errors: 0
+                    };
+                    localStorage.setItem(STORAGE_KEYS.ANALYTICS, JSON.stringify(initialData));
+                    localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify([]));
+                }
+            }
+
+            // Get analytics data
+            function getAnalyticsData() {
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_KEYS.ANALYTICS) || '{}');
+                } catch (e) {
+                    return {};
+                }
+            }
+
+            // Save analytics data
+            function saveAnalyticsData(data) {
+                localStorage.setItem(STORAGE_KEYS.ANALYTICS, JSON.stringify(data));
+            }
+
+            // Get activities data
+            function getActivitiesData() {
+                try {
+                    return JSON.parse(localStorage.getItem(STORAGE_KEYS.ACTIVITIES) || '[]');
+                } catch (e) {
+                    return [];
+                }
+            }
+
+            // Save activities data
+            function saveActivitiesData(activities) {
+                localStorage.setItem(STORAGE_KEYS.ACTIVITIES, JSON.stringify(activities));
+            }
+
+            // Get or create session ID
+            function getSessionId() {
+                let sessionId = sessionStorage.getItem('convertYours_sessionId');
+                if (!sessionId) {
+                    sessionId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                    sessionStorage.setItem('convertYours_sessionId', sessionId);
+
+                    // Track session start
+                    const data = getAnalyticsData();
+                    const sessions = data.sessions || [];
+                    sessions.push({
+                        id: sessionId,
+                        start: Date.now(),
+                        end: null,
+                        activities: 0,
+                        userAgent: navigator.userAgent,
+                        referrer: document.referrer || 'Direct',
+                        language: navigator.language,
+                        screen: `${screen.width}x${screen.height}`,
+                        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+                    });
+
+                    data.sessions = sessions;
+                    saveAnalyticsData(data);
+
+                    addActivity('session_start', {
+                        userAgent: navigator.userAgent,
+                        referrer: document.referrer || 'Direct',
+                        language: navigator.language,
+                        screen: `${screen.width}x${screen.height}`
+                    });
+                }
+                return sessionId;
+            }
+
+            // Add activity
+            function addActivity(type, details = {}) {
+                const activities = getActivitiesData();
+                const activity = {
+                    id: Date.now() + Math.random(),
+                    type: type,
+                    details: details,
+                    timestamp: Date.now(),
+                    sessionId: getSessionId(),
+                    url: window.location.href,
+                    userAgent: navigator.userAgent.slice(0, 100)
+                };
+
+                activities.unshift(activity);
+
+                // Keep only last 1000 activities for performance
+                if (activities.length > 1000) {
+                    activities.splice(1000);
+                }
+
+                saveActivitiesData(activities);
+
+                // Update analytics counters
+                const analyticsData = getAnalyticsData();
+
+                switch (type) {
+                    case 'page_view':
+                        analyticsData.pageViews = analyticsData.pageViews || [];
+                        analyticsData.pageViews.push(Date.now());
+                        break;
+
+                    case 'tool_used':
+                        analyticsData.toolUsage = analyticsData.toolUsage || {};
+                        analyticsData.toolUsage[details.tool] = (analyticsData.toolUsage[details.tool] || 0) + 1;
+                        break;
+
+                    case 'file_processed':
+                        analyticsData.filesProcessed = (analyticsData.filesProcessed || 0) + 1;
+                        analyticsData.totalDataSize = (analyticsData.totalDataSize || 0) + (details.fileSize || 0);
+                        break;
+
+                    case 'error':
+                        analyticsData.errors = (analyticsData.errors || 0) + 1;
+                        break;
+                }
+
+                saveAnalyticsData(analyticsData);
+                trackSessionActivity();
+            }
+
+            // Track session activity
+            function trackSessionActivity() {
+                const sessionId = getSessionId();
+                const data = getAnalyticsData();
+                const sessions = data.sessions || [];
+
+                const session = sessions.find(s => s.id === sessionId);
+                if (session && !session.end) {
+                    session.activities = (session.activities || 0) + 1;
+                    session.lastActivity = Date.now();
+                    saveAnalyticsData(data);
+                }
+            }
+
+            // End session
+            function endSession() {
+                const sessionId = sessionStorage.getItem('convertYours_sessionId');
+                if (sessionId) {
+                    const data = getAnalyticsData();
+                    const sessions = data.sessions || [];
+                    const session = sessions.find(s => s.id === sessionId);
+                    if (session && !session.end) {
+                        session.end = Date.now();
+                        session.duration = session.end - session.start;
+                        saveAnalyticsData(data);
+
+                        addActivity('session_end', {
+                            duration: session.duration,
+                            activities: session.activities || 0
+                        });
+                    }
+                }
+            }
+
+            // Track page view
+            function trackPageView() {
+                addActivity('page_view', {
+                    page: document.title,
+                    url: window.location.href,
+                    referrer: document.referrer || 'Direct'
+                });
+            }
+            // Initialize analytics on page load
+            initializeAnalytics();
+            trackPageView();
+            // End session on page unload
+            window.addEventListener('beforeunload', endSession);
+        })();
     </script>
 </body>
 
+<<<<<<< HEAD
 </html>
+=======
+</html>
+>>>>>>> 1e00b9fd1d4eccefd694c0d52f1ea222966cf632
